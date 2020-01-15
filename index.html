@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+    
+    <script src="./three.js"></script>
+    
+    <script src="./Detector.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <script src="./OBJLoader.js"></script>
+    <script src="./MTLLoader.js"></script>
+     -->
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: hsl(0, 0%, 10%);
+        }
+    </style>
+</head>
+<body>
+  <script>
+    
+    // The detector will show a warning if the current browser does not support WebGL.
+if (!Detector.webgl) {
+    Detector.addGetWebGLMessage();
+}
+
+// All of these variables will be needed later, just ignore them for now.
+var container;
+var camera, controls, scene, renderer;
+var lighting, ambient, keyLight, fillLight, backLight;
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
+
+init();
+animate();
+
+function init() {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+camera.position.x = 999;
+camera.position.y = 9;
+camera.position.z = 9;
+//
+scene = new THREE.Scene();
+ambient = new THREE.AmbientLight(0xffffff, 2.0);
+scene.add(ambient);
+//
+keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+keyLight.position.set(-100, 0, 100);
+
+fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+fillLight.position.set(100, 0, 100);
+
+backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+backLight.position.set(100, 0, -100).normalize();
+
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+scene.add( directionalLight );
+
+scene.add(keyLight);
+scene.add(fillLight);
+scene.add(backLight);
+//
+var mtlLoader = new THREE.MTLLoader();
+// mtlLoader.setBaseUrl('./');
+mtlLoader.setPath('./');
+mtlLoader.load('./2020 Jan Andrew retro TV UNIT.mtl', function (materials) {
+
+    materials.preload();
+
+    // materials.materials.default.map.magFilter = THREE.NearestFilter;
+    // materials.materials.default.map.minFilter = THREE.LinearFilter;
+
+    var objLoader = new THREE.OBJLoader();
+    objLoader.setMaterials(materials);
+    objLoader.setPath('./');
+    objLoader.load('./2020 Jan Andrew retro TV UNIT.obj', function (object) {
+
+        scene.add(object);
+        object.scale.set( .5, .5, .5 );
+
+    });
+
+});
+
+renderer = new THREE.WebGLRenderer();
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(new THREE.Color("hsl(0, 0%, 10%)"));
+
+container.appendChild(renderer.domElement);
+
+//
+controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.25;
+controls.enableZoom = true;
+    // Code...
+}
+
+function render() {
+  requestAnimationFrame(render);
+    controls.update();
+    renderer.render(scene, camera);
+    // Code...
+}
+function animate() {
+	requestAnimationFrame( animate );
+	renderer.render( scene, camera );
+}
+</script>  
+</body>
+</html>
